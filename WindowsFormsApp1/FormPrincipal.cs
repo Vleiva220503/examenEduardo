@@ -19,17 +19,25 @@ namespace WindowsFormsApp1
             videoCallForm.Show();
         }
 
-        private void btnStartCall_Click_1(object sender, EventArgs e)
+        private void btnStartCall_Click(object sender, EventArgs e)
         {
-            string roomName = dailyAPIClient.CreateRoom();
-            if (!string.IsNullOrEmpty(roomName))
+            try
             {
-                string roomUrl = dailyAPIClient.GetRoomUrl(roomName);
-                txtCallUrl.Text = roomUrl;  
+                string roomName = dailyAPIClient.CreateRoom();
+                if (!string.IsNullOrEmpty(roomName))
+                {
+                    string roomUrl = dailyAPIClient.GetRoomUrl(roomName);
+                    txtCallUrl.Text = roomUrl;
+                    btnCopyUrl.Enabled = true; 
+                }
+                else
+                {
+                    MessageBox.Show("Failed to create room. Please try again.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed to create room. Please try again.");
+                MessageBox.Show($"Failed to create room: {ex.Message}");
             }
         }
 
@@ -48,12 +56,19 @@ namespace WindowsFormsApp1
 
         private void btnGoToUrl_Click(object sender, EventArgs e)
         {
-            string url = txtInputUrl.Text;
+            string url = txtInputUrl.Text.Trim();
             if (!string.IsNullOrEmpty(url))
             {
                 try
                 {
-                    System.Diagnostics.Process.Start(url);
+                    if (Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                    {
+                        System.Diagnostics.Process.Start(url);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Please enter a valid URL");
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -62,7 +77,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                MessageBox.Show("Please enter a valid URL.");
+                MessageBox.Show("please a valid url ");
             }
         }
     }
